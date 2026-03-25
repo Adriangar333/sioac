@@ -101,7 +101,7 @@ export async function registerRoutes(
 ): Promise<Server> {
 
   // Seed demo data on startup
-  seedDemoData();
+  await seedDemoData();
 
   // ========== AUTH ==========
   app.post("/api/auth/login", async (req, res) => {

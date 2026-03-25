@@ -1,10 +1,10 @@
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, serial, doublePrecision, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // 1. Users
-export const users = sqliteTable("users", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   name: text("name").notNull(),
@@ -17,8 +17,8 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 // 2. Clients
-export const clients = sqliteTable("clients", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const clients = pgTable("clients", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   variations: text("variations").notNull().default("[]"), // JSON array
   keywords: text("keywords").notNull().default("[]"), // JSON array
@@ -38,8 +38,8 @@ export type InsertClient = z.infer<typeof insertClientSchema>;
 export type Client = typeof clients.$inferSelect;
 
 // 3. Client Images
-export const clientImages = sqliteTable("client_images", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const clientImages = pgTable("client_images", {
+  id: serial("id").primaryKey(),
   clientId: integer("client_id").notNull(),
   imageUrl: text("image_url").notNull(),
   isReference: integer("is_reference").notNull().default(1),
@@ -51,8 +51,8 @@ export type InsertClientImage = z.infer<typeof insertClientImageSchema>;
 export type ClientImage = typeof clientImages.$inferSelect;
 
 // 4. Searches
-export const searches = sqliteTable("searches", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const searches = pgTable("searches", {
+  id: serial("id").primaryKey(),
   clientId: integer("client_id").notNull(),
   createdBy: integer("created_by"),
   status: text("status").notNull().default("pending"), // pending, running, completed, failed
@@ -68,8 +68,8 @@ export type InsertSearch = z.infer<typeof insertSearchSchema>;
 export type Search = typeof searches.$inferSelect;
 
 // 5. Search Queries
-export const searchQueries = sqliteTable("search_queries", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const searchQueries = pgTable("search_queries", {
+  id: serial("id").primaryKey(),
   searchId: integer("search_id").notNull(),
   queryText: text("query_text").notNull(),
   engine: text("engine").notNull().default("google"),
@@ -83,8 +83,8 @@ export type InsertSearchQuery = z.infer<typeof insertSearchQuerySchema>;
 export type SearchQuery = typeof searchQueries.$inferSelect;
 
 // 6. Results
-export const results = sqliteTable("results", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const results = pgTable("results", {
+  id: serial("id").primaryKey(),
   searchId: integer("search_id").notNull(),
   clientId: integer("client_id").notNull(),
   url: text("url").notNull(),
@@ -98,9 +98,9 @@ export const results = sqliteTable("results", {
   matchedKeyword: text("matched_keyword"),
   sourceType: text("source_type").notNull().default("web"), // web, social, news, blog
   sentiment: text("sentiment").notNull().default("neutral"), // very_positive, positive, neutral, negative, very_negative
-  sentimentScore: real("sentiment_score").notNull().default(0),
+  sentimentScore: doublePrecision("sentiment_score").notNull().default(0),
   identityConfidence: text("identity_confidence").notNull().default("medium"), // high, medium, low
-  identityScore: real("identity_score").notNull().default(0.5),
+  identityScore: doublePrecision("identity_score").notNull().default(0.5),
   classification: text("classification").notNull().default("pending_review"), // main_news, secondary_mention, potential_deindex, irrelevant, pending_review
   classificationHistory: text("classification_history").notNull().default("[]"), // JSON
   hasClientImage: integer("has_client_image").notNull().default(0),
@@ -115,8 +115,8 @@ export type InsertResult = z.infer<typeof insertResultSchema>;
 export type Result = typeof results.$inferSelect;
 
 // 7. Classification Rules
-export const classificationRules = sqliteTable("classification_rules", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const classificationRules = pgTable("classification_rules", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   conditions: text("conditions").notNull().default("[]"), // JSON array of conditions
   action: text("action").notNull(), // classification to assign
@@ -131,8 +131,8 @@ export type InsertClassificationRule = z.infer<typeof insertClassificationRuleSc
 export type ClassificationRule = typeof classificationRules.$inferSelect;
 
 // 8. Export Jobs
-export const exportJobs = sqliteTable("export_jobs", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const exportJobs = pgTable("export_jobs", {
+  id: serial("id").primaryKey(),
   searchId: integer("search_id"),
   format: text("format").notNull().default("xlsx"), // xlsx, pdf, csv
   filters: text("filters").notNull().default("{}"), // JSON
@@ -147,8 +147,8 @@ export type InsertExportJob = z.infer<typeof insertExportJobSchema>;
 export type ExportJob = typeof exportJobs.$inferSelect;
 
 // 9. Audit Log
-export const auditLog = sqliteTable("audit_log", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const auditLog = pgTable("audit_log", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id"),
   action: text("action").notNull(),
   entityType: text("entity_type").notNull(),
